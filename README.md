@@ -27,16 +27,6 @@ LifeOps is an open everyday life admin workspace. It gives visitors one calm pla
 - Zod and React Hook Form
 - Recharts, Lucide React, Framer Motion, Sonner, and next-themes
 
-## Screenshots
-
-The app includes a polished marketing page and a complete guest workspace. Run the project and choose **Open workspace** on the home page to inspect:
-
-- Dashboard score, activity cards, weekly spend graph, and AI insights
-- Food decider form and suggestion cards
-- Money analytics, CSV upload, filters, CRUD dialog, and charts
-- Message drafting workspace and saved history
-- Profile and preference settings
-
 ## Local Setup
 
 ### 1. Install dependencies
