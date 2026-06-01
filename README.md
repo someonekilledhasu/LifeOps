@@ -4,6 +4,9 @@
 
 LifeOps is an open everyday life admin workspace. It gives visitors one calm place for food decisions, spending analysis, difficult message drafting, and an Adulting Score that turns small actions into useful patterns.
 
+## Live Demo
+🌐 https://lifeops-three.vercel.app/
+
 ## Features
 
 - Zero-friction guest workspace with no login wall
