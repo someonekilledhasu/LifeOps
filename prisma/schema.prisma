@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExpenseCategory {
+  FOOD
+  SHOPPING
+  TRANSPORT
+  BILLS
+  SUBSCRIPTIONS
+  EDUCATION
+  ENTERTAINMENT
+  HEALTH
+  TRAVEL
+  OTHER
+}
+
+model User {
+  id                String             @id @default(cuid())
+  name              String
+  email             String             @unique
+  image             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  expenses          Expense[]
+  foodDecisions     FoodDecision[]
+  generatedMessages GeneratedMessage[]
+  adultingScores    AdultingScore[]
+  settings          UserSettings?
+}
+
+model Expense {
+  id        String          @id @default(cuid())
+  userId    String
+  date      DateTime
+  merchant  String
+  amount    Decimal         @db.Decimal(12, 2)
+  category  ExpenseCategory @default(OTHER)
+  notes     String?
+  source    String          @default("manual")
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, category])
+}
+
+model FoodDecision {
+  id          String   @id @default(cuid())
+  userId      String
+  budget      Float
+  diet        String
+  cuisine     String?
+  mood        String
+  timeMinutes Int
+  mode        String
+  health      String
+  suggestions Json
+  selected    String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model GeneratedMessage {
+  id           String   @id @default(cuid())
+  userId       String
+  situation    String
+  tone         String
+  recipient    String
+  context      String
+  subject      String?
+  body         String
+  shortVersion String
+  polished     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model AdultingScore {
+  id        String   @id @default(cuid())
+  userId    String
+  score     Int
+  breakdown Json
+  summary   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model UserSettings {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  monthlyBudget   Float    @default(30000)
+  currency        String   @default("INR")
+  dietaryPreference String @default("flexible")
+  favoriteCuisines String[]
+  darkMode        Boolean  @default(false)
+  onboardingDone  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

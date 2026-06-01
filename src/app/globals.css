@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-manrope: "Bodoni 72", Didot, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --font-body: "Avenir Next", "Segoe UI", Arial, sans-serif;
+    --background: 340 100% 96%;
+    --foreground: 334 42% 22%;
+    --card: 345 100% 98%;
+    --card-foreground: 334 42% 22%;
+    --muted: 337 100% 93%;
+    --muted-foreground: 335 30% 43%;
+    --border: 336 80% 84%;
+    --primary: 328 100% 54%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 335 100% 89%;
+    --secondary-foreground: 329 81% 38%;
+    --destructive: 0 76% 58%;
+  }
+
+  .dark {
+    --background: 326 38% 10%;
+    --foreground: 336 100% 95%;
+    --card: 329 37% 16%;
+    --card-foreground: 336 100% 95%;
+    --muted: 329 30% 22%;
+    --muted-foreground: 335 42% 73%;
+    --border: 327 38% 32%;
+    --primary: 328 100% 66%;
+    --primary-foreground: 330 48% 12%;
+    --secondary: 330 40% 24%;
+    --secondary-foreground: 335 100% 87%;
+    --destructive: 0 72% 62%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    isolation: isolate;
+    font-family: var(--font-body);
+    background-image:
+      radial-gradient(circle at 18% 12%, rgba(255, 182, 217, 0.7), transparent 24rem),
+      radial-gradient(circle at 82% 88%, rgba(255, 105, 180, 0.24), transparent 28rem),
+      radial-gradient(rgba(255, 20, 147, 0.12) 1px, transparent 1px);
+    background-size: auto, auto, 18px 18px;
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at 18% 12%, rgba(190, 24, 93, 0.28), transparent 24rem),
+      radial-gradient(circle at 82% 88%, rgba(219, 39, 119, 0.2), transparent 28rem),
+      radial-gradient(rgba(244, 114, 182, 0.13) 1px, transparent 1px);
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-manrope);
+    letter-spacing: -0.035em;
+  }
+}
+
+@layer utilities {
+  .pink-frame {
+    @apply border border-pink-300 bg-pink-100 shadow-sm dark:border-pink-800 dark:bg-pink-950;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .coquette-note::after {
+    content: "";
+    @apply pointer-events-none absolute inset-1 rounded-[1.25rem] border border-dashed border-pink-300 dark:border-pink-700;
+  }
+
+  .lace-edge {
+    background-image: radial-gradient(circle at 9px 0, transparent 8px, rgba(251, 207, 232, 0.82) 9px);
+    background-size: 18px 10px;
+  }
+
+  .font-display {
+    font-family: var(--font-manrope);
+    letter-spacing: -0.025em;
+  }
+}
