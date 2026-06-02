@@ -4,7 +4,7 @@ export const GUEST_EMAIL = "guest@lifeops.app";
 export const APP_USER = {
   id: GUEST_USER_ID,
   email: GUEST_EMAIL,
-  name: "Aarav Mehta",
+  name: "Hasini",
 };
 
 export function getAppUser() {

@@ -127,3 +127,79 @@ Return {"subject":"optional useful subject","body":"ready-to-send message","shor
     },
   };
 }
+
+type CoachContext = {
+  weeklyFoodSpend: number;
+  weeklyFoodBudget: number;
+  eatingOutCount: number;
+  subscriptionsTotal: number;
+  strongestPattern: string;
+};
+
+export type CoachAnswer = {
+  message: string;
+  nextSteps: string[];
+};
+
+export async function coachReply(
+  question: string,
+  context: CoachContext,
+): Promise<{ answer: CoachAnswer; source: "ai" | "fallback" }> {
+  const generated = await requestJson<CoachAnswer>(
+    `You are the warm, practical LifeOps coach. Answer the user's question with a clear recommendation using their actual context. Avoid judgment and keep the response under 120 words.
+User question: ${JSON.stringify(question)}
+LifeOps context: ${JSON.stringify(context)}
+Return {"message":"helpful response","nextSteps":["short action","short action","short action"]}.`,
+  );
+
+  if (generated?.message && generated.nextSteps?.length) {
+    return { answer: generated, source: "ai" };
+  }
+
+  const normalized = question.toLowerCase();
+  const foodBudgetDifference = context.weeklyFoodSpend - context.weeklyFoodBudget;
+
+  if (/crav|food|order|hungry|biryani|pizza|swiggy|zomato/.test(normalized)) {
+    return {
+      source: "fallback",
+      answer: {
+        message:
+          foodBudgetDifference > 0
+            ? `Your craving is real, and your food budget is already ₹${foodBudgetDifference.toLocaleString("en-IN")} over plan. Give yourself a satisfying homemade option first. You are not saying no forever, just protecting tomorrow-you from a choice that may not feel worth it.`
+            : `You have room in your food budget, but you have already eaten out ${context.eatingOutCount} time${context.eatingOutCount === 1 ? "" : "s"} this week. Make this a deliberate treat or try one comforting homemade option first.`,
+        nextSteps: [
+          "Drink water and wait 15 minutes.",
+          "Choose the fastest comforting meal already at home.",
+          "If you still order, set a clear spending cap.",
+        ],
+      },
+    };
+  }
+
+  if (/buy|shopping|cart|headphone|amazon|spend/.test(normalized)) {
+    return {
+      source: "fallback",
+      answer: {
+        message:
+          "Put the item on a 48-hour wishlist. The point is not to deny yourself nice things; it is to make sure the purchase still feels useful after the excitement settles.",
+        nextSteps: [
+          "Write down what problem the item solves.",
+          "Compare its price with one current goal.",
+          "Revisit the cart after two sleeps.",
+        ],
+      },
+    };
+  }
+
+  return {
+    source: "fallback",
+    answer: {
+      message: `Start with the smallest honest next step. One useful pattern I can already see is this: ${context.strongestPattern.toLowerCase()} You do not need to solve the entire week tonight.`,
+      nextSteps: [
+        "Name the one decision that would make tomorrow easier.",
+        "Choose an action that takes under 15 minutes.",
+        "Check in again after you complete it.",
+      ],
+    },
+  };
+}

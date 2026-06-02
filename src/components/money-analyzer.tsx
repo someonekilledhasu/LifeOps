@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Download, FileUp, Loader2, Pencil, Plus, Search, Sparkles, Trash2, Upload, X } from "lucide-react";
+import { BrainCircuit, Download, FileUp, Loader2, Pencil, Plus, Search, Sparkles, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { dateWithin, spendingAnalytics } from "@/lib/expenses";
+import { predictRegret } from "@/lib/premium-insights";
 import { expenseSchema } from "@/lib/validators";
 import { expenseCategories, type ExpenseRecord } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
@@ -122,14 +123,20 @@ export function MoneyAnalyzer({ initialExpenses }: { initialExpenses: ExpenseRec
           </div>
         </CardContent>
       </Card>
-      {dialog && <ExpenseDialog expense={dialog} onClose={() => setDialog(null)} onSave={(expense) => { setExpenses((current) => dialog === "new" ? [expense, ...current] : current.map((item) => item.id === expense.id ? expense : item)); setDialog(null); }} />}
+      {dialog && <ExpenseDialog expense={dialog} expenses={expenses} onClose={() => setDialog(null)} onSave={(expense) => { setExpenses((current) => dialog === "new" ? [expense, ...current] : current.map((item) => item.id === expense.id ? expense : item)); setDialog(null); }} />}
     </div>
   );
 }
 
-function ExpenseDialog({ expense, onClose, onSave }: { expense: ExpenseRecord | "new"; onClose: () => void; onSave: (expense: ExpenseRecord) => void }) {
+function ExpenseDialog({ expense, expenses, onClose, onSave }: { expense: ExpenseRecord | "new"; expenses: ExpenseRecord[]; onClose: () => void; onSave: (expense: ExpenseRecord) => void }) {
   const editing = expense !== "new";
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ExpenseFormInput, unknown, ExpenseForm>({ resolver: zodResolver(expenseSchema), defaultValues: editing ? { ...expense, date: expense.date.slice(0, 10), notes: expense.notes ?? "" } : { date: format(new Date(), "yyyy-MM-dd"), merchant: "", amount: 0, category: "Other", notes: "" } });
+  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<ExpenseFormInput, unknown, ExpenseForm>({ resolver: zodResolver(expenseSchema), defaultValues: editing ? { ...expense, date: expense.date.slice(0, 10), notes: expense.notes ?? "" } : { date: format(new Date(), "yyyy-MM-dd"), merchant: "", amount: 0, category: "Other", notes: "" } });
+  const watchedAmount = Number(watch("amount")) || 0;
+  const watchedCategory = watch("category") ?? "Other";
+  const watchedMerchant = watch("merchant") ?? "";
+  const prediction = watchedAmount > 0 && watchedMerchant.trim().length >= 2
+    ? predictRegret({ amount: watchedAmount, category: watchedCategory, merchant: watchedMerchant }, expenses.filter((item) => !editing || item.id !== expense.id))
+    : null;
   async function save(values: ExpenseForm) {
     const response = await fetch(editing ? `/api/expenses/${expense.id}` : "/api/expenses", { method: editing ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });
     const data = await response.json();
@@ -137,7 +144,7 @@ function ExpenseDialog({ expense, onClose, onSave }: { expense: ExpenseRecord | 
     onSave(data.expense);
     toast.success(editing ? "Expense updated." : "Expense added.");
   }
-  return <div className="fixed inset-0 z-50 grid place-items-center bg-pink-500/35 p-4"><Card className="w-full max-w-lg shadow-2xl"><CardHeader className="flex-row items-center justify-between space-y-0"><CardTitle>{editing ? "Edit expense" : "Add expense"}</CardTitle><Button size="icon" variant="ghost" onClick={onClose}><X className="h-4 w-4" /></Button></CardHeader><CardContent><form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit(save)}><Field label="Date" error={errors.date?.message}><Input type="date" {...register("date")} /></Field><Field label="Merchant" error={errors.merchant?.message}><Input placeholder="Merchant name" {...register("merchant")} /></Field><Field label="Amount" error={errors.amount?.message}><Input type="number" step="0.01" {...register("amount")} /></Field><Field label="Category" error={errors.category?.message}><Select {...register("category")}>{expenseCategories.map((category) => <option key={category}>{category}</option>)}</Select></Field><div className="sm:col-span-2"><Field label="Notes" error={errors.notes?.message}><Textarea placeholder="Optional context" {...register("notes")} /></Field></div><div className="flex gap-2 sm:col-span-2 sm:justify-end"><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button disabled={isSubmitting}>{isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}{editing ? "Save changes" : "Add expense"}</Button></div></form></CardContent></Card></div>;
+  return <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-pink-500/35 p-4"><Card className="my-6 w-full max-w-2xl shadow-2xl"><CardHeader className="flex-row items-center justify-between space-y-0"><CardTitle>{editing ? "Edit expense" : "Add expense"}</CardTitle><Button size="icon" variant="ghost" onClick={onClose}><X className="h-4 w-4" /></Button></CardHeader><CardContent><form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit(save)}><Field label="Date" error={errors.date?.message}><Input type="date" {...register("date")} /></Field><Field label="Merchant" error={errors.merchant?.message}><Input placeholder="Merchant name" {...register("merchant")} /></Field><Field label="Amount" error={errors.amount?.message}><Input type="number" step="0.01" {...register("amount")} /></Field><Field label="Category" error={errors.category?.message}><Select {...register("category")}>{expenseCategories.map((category) => <option key={category}>{category}</option>)}</Select></Field><div className="sm:col-span-2"><Field label="Notes" error={errors.notes?.message}><Textarea placeholder="Optional context" {...register("notes")} /></Field></div>{prediction && <div className="rounded-2xl border border-pink-200 bg-pink-50 p-4 dark:border-pink-900 dark:bg-pink-950 sm:col-span-2"><div className="flex items-center justify-between gap-3"><p className="flex items-center gap-2 text-sm font-bold"><BrainCircuit className="h-4 w-4 text-primary" /> Regret predictor</p><span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">{prediction.risk} risk</span></div><p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Based on your spending history</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><Metric label="Similar purchases" value={`${prediction.similarPurchases}`} note={prediction.detail} /><Metric label="Regret rate" value={`${prediction.regretRate}%`} note="Estimated impulse-buy risk" /></div><div className="mt-3 rounded-xl bg-white p-3 text-sm dark:bg-card"><span className="font-bold text-primary">Suggested action: </span>{prediction.suggestedAction}</div></div>}<div className="flex gap-2 sm:col-span-2 sm:justify-end"><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button disabled={isSubmitting}>{isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}{editing ? "Save changes" : "Add expense"}</Button></div></form></CardContent></Card></div>;
 }
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) { return <div className="space-y-2"><Label>{label}</Label>{children}{error && <p className="text-xs text-destructive">{error}</p>}</div>; }

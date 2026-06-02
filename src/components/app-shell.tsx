@@ -9,6 +9,7 @@ import {
   CircleDollarSign,
   Home,
   Menu,
+  MessagesSquare,
   MessageSquareText,
   Settings,
   Sparkles,
@@ -24,6 +25,7 @@ const navigation = [
   { href: "/food", label: "Decide food", icon: ChefHat },
   { href: "/money", label: "Money", icon: CircleDollarSign },
   { href: "/messages", label: "Messages", icon: MessageSquareText },
+  { href: "/coach", label: "Life coach", icon: MessagesSquare },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

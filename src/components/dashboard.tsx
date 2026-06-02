@@ -7,6 +7,7 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { ArrowRight, ChefHat, CircleDollarSign, MessageSquareText, Sparkles, TrendingUp, WalletCards } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MiniBow, PearlDivider } from "@/components/coquette-companions";
+import { PremiumDashboard } from "@/components/premium-dashboard";
 import { Badge } from "@/components/ui/badge";
 import { calculateAdultingScore } from "@/lib/score";
 import { spendingAnalytics } from "@/lib/expenses";
@@ -77,6 +78,8 @@ export function Dashboard({ name, expenses, foods, messages }: { name: string; e
         <Stat label="Messages drafted" value={`${messages.length} ready`} icon={MessageSquareText} />
       </div>
 
+      <PremiumDashboard name={name} expenses={expenses} foods={foods} messages={messages} />
+
       <h2 className="mt-9 text-lg font-bold">What do you want to sort out?</h2>
       <div className="mt-3 grid gap-4 lg:grid-cols-3">
         {actions.map((action) => (
@@ -98,7 +101,7 @@ export function Dashboard({ name, expenses, foods, messages }: { name: string; e
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle>Score breakdown</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Adulting score inputs</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             {score.breakdown.map((item) => (
               <div key={item.label}>

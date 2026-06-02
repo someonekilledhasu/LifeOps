@@ -145,7 +145,7 @@ function DashboardPreview() {
     <div className="pink-frame rounded-[1.7rem] p-3 shadow-2xl">
       <div className="rounded-[1.35rem] bg-background p-4 sm:p-5">
         <div className="flex items-center justify-between">
-          <div><p className="text-xs text-muted-foreground">Sunday, 1 June</p><p className="font-semibold">Good afternoon, Aarav</p></div>
+          <div><p className="text-xs text-muted-foreground">Sunday, 1 June</p><p className="font-semibold">Good afternoon, Hasini</p></div>
           <div className="h-9 w-9 rounded-full bg-gradient-to-br from-pink-300 to-rose-400" />
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-[0.82fr_1.18fr]">

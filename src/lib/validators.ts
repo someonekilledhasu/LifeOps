@@ -34,3 +34,7 @@ export const settingsSchema = z.object({
   favoriteCuisines: z.array(z.string().trim().min(1).max(40)).max(8),
   darkMode: z.boolean(),
 });
+
+export const coachInputSchema = z.object({
+  question: z.string().trim().min(3).max(800),
+});
