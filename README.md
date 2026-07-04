@@ -96,6 +96,41 @@ https://lifeops-three.vercel.app/
 
 ---
 
+# 🏗️ System Architecture
+
+```text
+                +----------------------+
+                |   Next.js Frontend   |
+                |   (React + UI)       |
+                +----------+-----------+
+                           |
+                           | HTTP Requests
+                           v
+                +----------------------+
+                |   Next.js API Routes |
+                +----------+-----------+
+                           |
+                +----------+-----------+
+                |                      |
+                v                      v
+        +---------------+      +------------------+
+        |  Prisma ORM   |      | OpenAI / Gemini  |
+        +-------+-------+      |      APIs        |
+                |              +------------------+
+                |
+                v
+        +------------------+
+        | PostgreSQL DB    |
+        +------------------+
+```
+
+### Data Flow
+
+- Users interact with the **Next.js Frontend**.
+- The frontend sends requests to **Next.js API Routes**.
+- API routes use **Prisma ORM** to read from and write to the **PostgreSQL** database.
+- For AI-powered features, the API routes communicate with **OpenAI** or **Google Gemini** APIs before returning responses to the frontend.
+
 # 🚀 Getting Started
 
 ## 1. Clone the repository
