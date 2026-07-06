@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -12,6 +14,8 @@ import {
   ShieldCheck,
   Sparkles,
   WandSparkles,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { MiniBow, PearlDivider } from "@/components/coquette-companions";
@@ -32,7 +36,13 @@ const steps = [
 ];
 
 export function LandingPage() {
-  return (
+   const { resolvedTheme, setTheme } = useTheme();
+   const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+    setMounted(true);
+     }, []);
+     
+    return (
     <main className="overflow-hidden">
       <div className="relative">
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[680px] bg-[radial-gradient(circle_at_18%_10%,rgba(251,207,232,0.72),transparent_38%),radial-gradient(circle_at_82%_22%,rgba(253,164,175,0.3),transparent_34%)]" />
@@ -44,6 +54,22 @@ export function LandingPage() {
             <a href="#dashboard-preview" className="hover:text-foreground">Preview</a>
           </nav>
           <div className="flex items-center gap-2">
+           <Button
+           variant="ghost"
+           size="icon"
+           onClick={() =>
+           setTheme(resolvedTheme === "dark" ? "light" : "dark")
+                   }
+           aria-label="Toggle theme"
+>
+          {mounted ? (
+           resolvedTheme === "dark" ? (
+          <Sun className="h-5 w-5" />
+           ) : (
+           <Moon className="h-5 w-5" />
+               )
+            ) : null}
+          </Button>
             <Button asChild>
               <Link href="/dashboard">Open workspace <ArrowRight className="h-4 w-4" /></Link>
             </Button>
@@ -137,6 +163,7 @@ export function LandingPage() {
       </footer>
     </main>
   );
+  
 }
 
 function DashboardPreview() {
