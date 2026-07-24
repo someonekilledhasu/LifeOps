@@ -18,7 +18,7 @@ import {
 import { Logo } from "@/components/logo";
 import { CoquetteCompanions, MiniBow } from "@/components/coquette-companions";
 import { Button } from "@/components/ui/button";
-import { cn, initials } from "@/lib/utils";
+import { ScrollToTop } from "@/components/scroll-to-top";import { cn, initials } from "@/lib/utils";
 
 const navigation = [
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
@@ -74,8 +74,8 @@ export function AppShell({ user, children }: { user: { name?: string | null; ema
         <Button size="icon" variant="ghost" onClick={() => setOpen(true)}><Menu className="h-5 w-5" /></Button>
         <p className="ml-3 font-semibold">LifeOps</p>
       </header>
-      <CoquetteCompanions />
-      <main className="md:pl-64 xl:pr-52">{children}</main>
+<CoquetteCompanions />
+      <ScrollToTop />      <main className="md:pl-64 xl:pr-52">{children}</main>
     </div>
   );
 }
