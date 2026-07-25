@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/providers";
 import { BotanicalBackground } from "@/components/botanical-background";
-import "./globals.css";
+import { CustomCursor } from "@/components/custom-cursor";import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: "LifeOps", template: "%s | LifeOps" },
@@ -12,8 +12,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen font-sans">
-        <BotanicalBackground />
-        <Providers>{children}</Providers>
+<BotanicalBackground />
+        <CustomCursor />        <Providers>{children}</Providers>
       </body>
     </html>
   );
