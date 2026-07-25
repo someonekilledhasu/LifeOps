@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { APP_USER } from "@/lib/workspace";
-import { getMessages } from "@/lib/data";
+import { getMessages, createMessage } from "@/lib/data";
 import { messageInputSchema } from "@/lib/validators";
 
 const saveMessageSchema = messageInputSchema.extend({
@@ -18,9 +18,8 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const input = saveMessageSchema.parse(await request.json());
-    const createdAt = new Date();
-    const id = `${APP_USER.id}-message-${Date.now()}`;
-    return NextResponse.json({ message: { id, ...input, createdAt: createdAt.toISOString() } }, { status: 201 });
+    const message = await createMessage(APP_USER.id, input);
+    return NextResponse.json({ message }, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) return NextResponse.json({ error: "Please check your draft." }, { status: 400 });
     console.error(error);
