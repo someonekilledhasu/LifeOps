@@ -1,8 +1,9 @@
 import { FoodDecider } from "@/components/food-decider";
-import { APP_USER } from "@/lib/workspace";
+import { getAppUser } from "@/lib/workspace";
 import { getFoodDecisions } from "@/lib/data";
 
 export default async function FoodPage() {
-  const history = await getFoodDecisions(APP_USER.id);
+  const user = await getAppUser();
+  const history = await getFoodDecisions(user.id);
   return <FoodDecider initialHistory={history} />;
 }
