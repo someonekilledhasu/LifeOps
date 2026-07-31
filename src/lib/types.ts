@@ -18,6 +18,8 @@ export type ExpenseRecord = {
   date: string;
   merchant: string;
   amount: number;
+  currency?: string;
+  exchangeRate?: number;
   category: ExpenseCategoryLabel;
   notes?: string;
   source?: string;

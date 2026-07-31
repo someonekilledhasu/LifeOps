@@ -40,6 +40,8 @@ model Expense {
   date      DateTime
   merchant  String
   amount    Decimal         @db.Decimal(12, 2)
+  currency  String          @default("INR")
+  exchangeRate Decimal      @default(1.0)
   category  ExpenseCategory @default(OTHER)
   notes     String?
   source    String          @default("manual")

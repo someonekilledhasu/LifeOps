@@ -5,6 +5,7 @@ export const expenseSchema = z.object({
   date: z.string().min(1),
   merchant: z.string().trim().min(2).max(100),
   amount: z.coerce.number().positive().max(10_000_000),
+  currency: z.string().trim().length(3).optional(),
   category: z.enum(expenseCategories),
   notes: z.string().trim().max(240).optional().default(""),
 });

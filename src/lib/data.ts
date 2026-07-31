@@ -12,6 +12,8 @@ export async function getExpenses(userId: string): Promise<ExpenseRecord[]> {
     date: expense.date.toISOString(),
     merchant: expense.merchant,
     amount: Number(expense.amount),
+    currency: expense.currency,
+    exchangeRate: Number(expense.exchangeRate),
     category: categoryFromDb[expense.category],
     notes: expense.notes ?? undefined,
     source: expense.source,
