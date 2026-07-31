@@ -32,6 +32,7 @@ model User {
   generatedMessages GeneratedMessage[]
   adultingScores    AdultingScore[]
   settings          UserSettings?
+  categoryBudgets   CategoryBudget[]
 }
 
 model Expense {
@@ -111,4 +112,16 @@ model UserSettings {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CategoryBudget {
+  id        String          @id @default(cuid())
+  userId    String
+  category  ExpenseCategory
+  limit     Float
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@unique([userId, category])
 }

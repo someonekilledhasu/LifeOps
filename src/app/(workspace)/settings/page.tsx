@@ -1,4 +1,5 @@
 import { SettingsPanel } from "@/components/settings-panel";
+import { CategoryBudgetsForm } from "@/components/category-budgets-form";
 import { APP_USER } from "@/lib/workspace";
 
 export default function SettingsPage() {
@@ -11,5 +12,12 @@ export default function SettingsPage() {
     favoriteCuisines: ["Indian", "Asian", "Mediterranean"],
     darkMode: false,
   };
-  return <SettingsPanel initial={settings} demo />;
+  return (
+    <>
+      <SettingsPanel initial={settings} demo />
+      <div className="mx-auto max-w-4xl px-5 sm:px-7 lg:px-9 pb-9">
+        <CategoryBudgetsForm />
+      </div>
+    </>
+  );
 }
