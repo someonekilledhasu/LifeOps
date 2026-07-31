@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTheme } from "next-themes";
-import { Loader2, Moon, Save, ShieldCheck, Sun, UserRound } from "lucide-react";
+import { Loader2, Moon, Save, ShieldCheck, Sun, UserRound, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ type Settings = {
   dietaryPreference: string;
   favoriteCuisines: string[];
   darkMode: boolean;
+  weeklyEmailsEnabled: boolean;
 };
 
 export function SettingsPanel({ initial, demo }: { initial: Settings; demo: boolean }) {
@@ -66,6 +67,25 @@ export function SettingsPanel({ initial, demo }: { initial: Settings; demo: bool
           </CardContent>
         </Card>
         <div className="flex justify-end"><Button onClick={() => void save()} disabled={pending}>{pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save settings</Button></div>
+        <Card>
+          <CardHeader><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-violet-500/10 text-violet-600"><Mail className="h-5 w-5" /></div><div><CardTitle>Notifications</CardTitle><p className="text-sm text-muted-foreground">Manage your email preferences.</p></div></div></CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-2">
+            <div className="flex items-center justify-between rounded-2xl border border-violet-200 bg-violet-50 p-3 dark:border-violet-800 dark:bg-violet-950/50 sm:col-span-2">
+              <div className="flex items-center gap-3">
+                <div><p className="text-sm font-medium">Weekly summary emails</p><p className="text-xs text-muted-foreground">Receive a weekly financial health and Adulting Score summary.</p></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Button variant="outline" size="sm" onClick={async () => {
+                  toast.success("Sending test report...");
+                  const res = await fetch("/api/test-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email, name: form.name }) });
+                  if (res.ok) toast.success("Test report sent!");
+                  else toast.error("Failed to send test report.");
+                }}><Send className="mr-2 h-3 w-3" /> Send Test Report</Button>
+                <button type="button" aria-label="Toggle weekly emails" className={`relative h-7 w-12 rounded-full transition ${form.weeklyEmailsEnabled ? "bg-primary" : "bg-muted"}`} onClick={() => setForm({ ...form, weeklyEmailsEnabled: !form.weeklyEmailsEnabled })}><span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${form.weeklyEmailsEnabled ? "left-6" : "left-1"}`} /></button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader><CardTitle>Open workspace mode</CardTitle><p className="text-sm text-muted-foreground">LifeOps is currently available without an account. Changes work during your visit and the sample dashboard stays ready to explore.</p></CardHeader>
         </Card>

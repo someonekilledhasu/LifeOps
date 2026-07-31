@@ -10,6 +10,7 @@ export default function SettingsPage() {
     dietaryPreference: "flexible",
     favoriteCuisines: ["Indian", "Asian", "Mediterranean"],
     darkMode: false,
+    weeklyEmailsEnabled: false,
   };
   return <SettingsPanel initial={settings} demo />;
 }

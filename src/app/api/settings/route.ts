@@ -4,7 +4,7 @@ import { APP_USER } from "@/lib/workspace";
 import { settingsSchema } from "@/lib/validators";
 
 export async function GET() {
-  return NextResponse.json({ settings: { name: APP_USER.name, monthlyBudget: 30000, currency: "INR", dietaryPreference: "flexible", favoriteCuisines: ["Indian", "Asian", "Mediterranean"], darkMode: false } });
+  return NextResponse.json({ settings: { name: APP_USER.name, monthlyBudget: 30000, currency: "INR", dietaryPreference: "flexible", favoriteCuisines: ["Indian", "Asian", "Mediterranean"], darkMode: false, weeklyEmailsEnabled: false } });
 }
 
 export async function PUT(request: Request) {
