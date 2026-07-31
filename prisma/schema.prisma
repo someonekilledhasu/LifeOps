@@ -32,6 +32,7 @@ model User {
   generatedMessages GeneratedMessage[]
   adultingScores    AdultingScore[]
   settings          UserSettings?
+  pushSubscriptions PushSubscription[]
 }
 
 model Expense {
@@ -111,4 +112,17 @@ model UserSettings {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
