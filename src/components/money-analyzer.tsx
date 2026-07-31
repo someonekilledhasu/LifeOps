@@ -5,8 +5,9 @@ import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { BrainCircuit, Download, FileUp, Loader2, Pencil, Plus, Search, Sparkles, Trash2, Upload, X } from "lucide-react";
+import { BrainCircuit, Download, FileUp, Loader2, Pencil, Plus, Search, Sparkles, Trash2, Upload, X, Settings } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -105,7 +106,13 @@ export function MoneyAnalyzer({ initialExpenses }: { initialExpenses: ExpenseRec
 
       <Card className="mt-5">
         <CardHeader className="gap-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><CardTitle>Expenses</CardTitle><Button asChild variant="outline" size="sm"><a href="/api/reports/expenses"><Download className="h-4 w-4" /> Export CSV</a></Button></div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle>Expenses</CardTitle>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm"><Link href="/expenses/rules"><Settings className="h-4 w-4 mr-2" /> Manage Rules</Link></Button>
+              <Button asChild variant="outline" size="sm"><a href="/api/reports/expenses"><Download className="h-4 w-4 mr-2" /> Export CSV</a></Button>
+            </div>
+          </div>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
             <div className="relative"><Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" /><Input className="pl-9" placeholder="Search merchants or notes" value={filters.search} onChange={(event) => setFilters({ ...filters, search: event.target.value })} /></div>
             <Select value={filters.category} onChange={(event) => setFilters({ ...filters, category: event.target.value })}><option>All</option>{expenseCategories.map((category) => <option key={category}>{category}</option>)}</Select>
@@ -130,6 +137,7 @@ export function MoneyAnalyzer({ initialExpenses }: { initialExpenses: ExpenseRec
 
 function ExpenseDialog({ expense, expenses, onClose, onSave }: { expense: ExpenseRecord | "new"; expenses: ExpenseRecord[]; onClose: () => void; onSave: (expense: ExpenseRecord) => void }) {
   const editing = expense !== "new";
+  const [saveRule, setSaveRule] = useState(false);
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<ExpenseFormInput, unknown, ExpenseForm>({ resolver: zodResolver(expenseSchema), defaultValues: editing ? { ...expense, date: expense.date.slice(0, 10), notes: expense.notes ?? "" } : { date: format(new Date(), "yyyy-MM-dd"), merchant: "", amount: 0, category: "Other", notes: "" } });
   const watchedAmount = Number(watch("amount")) || 0;
   const watchedCategory = watch("category") ?? "Other";
@@ -141,10 +149,15 @@ function ExpenseDialog({ expense, expenses, onClose, onSave }: { expense: Expens
     const response = await fetch(editing ? `/api/expenses/${expense.id}` : "/api/expenses", { method: editing ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values) });
     const data = await response.json();
     if (!response.ok) return toast.error(data.error ?? "Could not save that expense.");
+    
+    if (saveRule) {
+      await fetch("/api/expenses/rules", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ merchantSubstring: values.merchant, targetCategory: values.category }) });
+    }
+
     onSave(data.expense);
     toast.success(editing ? "Expense updated." : "Expense added.");
   }
-  return <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-pink-500/35 p-4"><Card className="my-6 w-full max-w-2xl shadow-2xl"><CardHeader className="flex-row items-center justify-between space-y-0"><CardTitle>{editing ? "Edit expense" : "Add expense"}</CardTitle><Button size="icon" variant="ghost" onClick={onClose}><X className="h-4 w-4" /></Button></CardHeader><CardContent><form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit(save)}><Field label="Date" error={errors.date?.message}><Input type="date" {...register("date")} /></Field><Field label="Merchant" error={errors.merchant?.message}><Input placeholder="Merchant name" {...register("merchant")} /></Field><Field label="Amount" error={errors.amount?.message}><Input type="number" step="0.01" {...register("amount")} /></Field><Field label="Category" error={errors.category?.message}><Select {...register("category")}>{expenseCategories.map((category) => <option key={category}>{category}</option>)}</Select></Field><div className="sm:col-span-2"><Field label="Notes" error={errors.notes?.message}><Textarea placeholder="Optional context" {...register("notes")} /></Field></div>{prediction && <div className="rounded-2xl border border-pink-200 bg-pink-50 p-4 dark:border-pink-900 dark:bg-pink-950 sm:col-span-2"><div className="flex items-center justify-between gap-3"><p className="flex items-center gap-2 text-sm font-bold"><BrainCircuit className="h-4 w-4 text-primary" /> Regret predictor</p><span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">{prediction.risk} risk</span></div><p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Based on your spending history</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><Metric label="Similar purchases" value={`${prediction.similarPurchases}`} note={prediction.detail} /><Metric label="Regret rate" value={`${prediction.regretRate}%`} note="Estimated impulse-buy risk" /></div><div className="mt-3 rounded-xl bg-white p-3 text-sm dark:bg-card"><span className="font-bold text-primary">Suggested action: </span>{prediction.suggestedAction}</div></div>}<div className="flex gap-2 sm:col-span-2 sm:justify-end"><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button disabled={isSubmitting}>{isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}{editing ? "Save changes" : "Add expense"}</Button></div></form></CardContent></Card></div>;
+  return <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-pink-500/35 p-4"><Card className="my-6 w-full max-w-2xl shadow-2xl"><CardHeader className="flex-row items-center justify-between space-y-0"><CardTitle>{editing ? "Edit expense" : "Add expense"}</CardTitle><Button size="icon" variant="ghost" onClick={onClose}><X className="h-4 w-4" /></Button></CardHeader><CardContent><form className="grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit(save)}><Field label="Date" error={errors.date?.message}><Input type="date" {...register("date")} /></Field><Field label="Merchant" error={errors.merchant?.message}><Input placeholder="Merchant name" {...register("merchant")} /></Field><Field label="Amount" error={errors.amount?.message}><Input type="number" step="0.01" {...register("amount")} /></Field><Field label="Category" error={errors.category?.message}><Select {...register("category")}>{expenseCategories.map((category) => <option key={category}>{category}</option>)}</Select></Field><div className="sm:col-span-2"><Field label="Notes" error={errors.notes?.message}><Textarea placeholder="Optional context" {...register("notes")} /></Field></div><div className="sm:col-span-2 flex items-center space-x-2 mt-2"><input type="checkbox" id="saveRule" checked={saveRule} onChange={(e) => setSaveRule(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" /><Label htmlFor="saveRule" className="font-normal cursor-pointer">Save this categorization as a rule for future imports</Label></div>{prediction && <div className="rounded-2xl border border-pink-200 bg-pink-50 p-4 dark:border-pink-900 dark:bg-pink-950 sm:col-span-2"><div className="flex items-center justify-between gap-3"><p className="flex items-center gap-2 text-sm font-bold"><BrainCircuit className="h-4 w-4 text-primary" /> Regret predictor</p><span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">{prediction.risk} risk</span></div><p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Based on your spending history</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><Metric label="Similar purchases" value={`${prediction.similarPurchases}`} note={prediction.detail} /><Metric label="Regret rate" value={`${prediction.regretRate}%`} note="Estimated impulse-buy risk" /></div><div className="mt-3 rounded-xl bg-white p-3 text-sm dark:bg-card"><span className="font-bold text-primary">Suggested action: </span>{prediction.suggestedAction}</div></div>}<div className="flex gap-2 sm:col-span-2 sm:justify-end mt-2"><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button disabled={isSubmitting}>{isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}{editing ? "Save changes" : "Add expense"}</Button></div></form></CardContent></Card></div>;
 }
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) { return <div className="space-y-2"><Label>{label}</Label>{children}{error && <p className="text-xs text-destructive">{error}</p>}</div>; }
