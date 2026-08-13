@@ -9,6 +9,11 @@ export const expenseSchema = z.object({
   notes: z.string().trim().max(240).optional().default(""),
 });
 
+export const expenseRuleSchema = z.object({
+  merchantSubstring: z.string().trim().min(2).max(100),
+  targetCategory: z.enum(expenseCategories),
+});
+
 export const foodInputSchema = z.object({
   budget: z.coerce.number().positive().max(100_000),
   diet: z.enum(["Vegetarian", "Non-vegetarian", "Vegan"]),
