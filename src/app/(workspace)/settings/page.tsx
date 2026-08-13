@@ -1,20 +1,14 @@
 import { SettingsPanel } from "@/components/settings-panel";
 import { CategoryBudgetsForm } from "@/components/category-budgets-form";
-import { APP_USER } from "@/lib/workspace";
+import { getAppUser } from "@/lib/workspace";
+import { getSettings } from "@/lib/data";
 
-export default function SettingsPage() {
-  const settings = {
-    name: APP_USER.name,
-    email: APP_USER.email,
-    monthlyBudget: 30000,
-    currency: "INR",
-    dietaryPreference: "flexible",
-    favoriteCuisines: ["Indian", "Asian", "Mediterranean"],
-    darkMode: false,
-  };
+export default async function SettingsPage() {
+  const user = await getAppUser();
+  const settings = await getSettings(user.id);
   return (
     <>
-      <SettingsPanel initial={settings} demo />
+      <SettingsPanel initial={{ ...settings, email: user.email }} demo={false} />
       <div className="mx-auto max-w-4xl px-5 sm:px-7 lg:px-9 pb-9">
         <CategoryBudgetsForm />
       </div>
