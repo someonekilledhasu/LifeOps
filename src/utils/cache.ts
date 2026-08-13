@@ -38,10 +38,8 @@ export class LRUCache<K, V> implements Cache<K, V> {
       this.store.delete(key);
     } else if (this.store.size >= this.maxSize) {
       // evict least recently used = first key in map
-      const oldestKey = this.store.keys().next().value;
-      if (oldestKey !== undefined) {
-        this.store.delete(oldestKey);
-      }
+      const oldestKey = this.store.keys().next().value as K;
+      this.store.delete(oldestKey);
     }
 
     this.store.set(key, {
