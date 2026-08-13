@@ -1,15 +1,9 @@
 import { SettingsPanel } from "@/components/settings-panel";
-import { APP_USER } from "@/lib/workspace";
+import { getAppUser } from "@/lib/workspace";
+import { getSettings } from "@/lib/data";
 
-export default function SettingsPage() {
-  const settings = {
-    name: APP_USER.name,
-    email: APP_USER.email,
-    monthlyBudget: 30000,
-    currency: "INR",
-    dietaryPreference: "flexible",
-    favoriteCuisines: ["Indian", "Asian", "Mediterranean"],
-    darkMode: false,
-  };
-  return <SettingsPanel initial={settings} demo />;
+export default async function SettingsPage() {
+  const user = await getAppUser();
+  const settings = await getSettings(user.id);
+  return <SettingsPanel initial={{ ...settings, email: user.email }} demo={false} />;
 }
