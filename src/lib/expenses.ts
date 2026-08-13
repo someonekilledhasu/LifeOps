@@ -42,17 +42,18 @@ export function spendingAnalytics(expenses: ExpenseRecord[]) {
   const days = new Map<string, number>();
 
   expenses.forEach((expense) => {
-    categories.set(expense.category, (categories.get(expense.category) ?? 0) + expense.amount);
-    merchants.set(expense.merchant, (merchants.get(expense.merchant) ?? 0) + expense.amount);
-    months.set(format(new Date(expense.date), "MMM"), (months.get(format(new Date(expense.date), "MMM")) ?? 0) + expense.amount);
-    days.set(format(new Date(expense.date), "dd MMM"), (days.get(format(new Date(expense.date), "dd MMM")) ?? 0) + expense.amount);
+    const amount = expense.amount * (expense.exchangeRate || 1);
+    categories.set(expense.category, (categories.get(expense.category) ?? 0) + amount);
+    merchants.set(expense.merchant, (merchants.get(expense.merchant) ?? 0) + amount);
+    months.set(format(new Date(expense.date), "MMM"), (months.get(format(new Date(expense.date), "MMM")) ?? 0) + amount);
+    days.set(format(new Date(expense.date), "dd MMM"), (days.get(format(new Date(expense.date), "dd MMM")) ?? 0) + amount);
   });
 
   const byCategory = [...categories].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
   const topMerchants = [...merchants].map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6);
   const byMonth = [...months].map(([month, amount]) => ({ month, amount }));
   const highestDay = [...days].map(([day, value]) => ({ day, value })).sort((a, b) => b.value - a.value)[0];
-  const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const total = expenses.reduce((sum, expense) => sum + expense.amount * (expense.exchangeRate || 1), 0);
   const food = categories.get("Food") ?? 0;
 
   return {

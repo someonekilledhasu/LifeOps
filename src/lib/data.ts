@@ -13,6 +13,8 @@ export async function getExpenses(userId: string): Promise<ExpenseRecord[]> {
     date: expense.date.toISOString(),
     merchant: expense.merchant,
     amount: Number(expense.amount),
+    currency: expense.currency,
+    exchangeRate: Number(expense.exchangeRate),
     category: categoryFromDb[expense.category],
     notes: expense.notes ?? undefined,
     source: expense.source,
@@ -21,7 +23,7 @@ export async function getExpenses(userId: string): Promise<ExpenseRecord[]> {
 
 export async function createExpense(
   userId: string,
-  input: { date: string; merchant: string; amount: number; category: ExpenseCategoryLabel; notes?: string; source?: string },
+  input: { date: string; merchant: string; amount: number; category: ExpenseCategoryLabel; notes?: string; source?: string; currency?: string; exchangeRate?: number },
 ): Promise<ExpenseRecord> {
   const expense = await prisma.expense.create({
     data: {
@@ -30,6 +32,8 @@ export async function createExpense(
       merchant: input.merchant,
       amount: input.amount,
       category: categoryToDb[input.category],
+      currency: input.currency ?? "INR",
+      exchangeRate: input.exchangeRate ?? 1.0,
       notes: input.notes || null,
       source: input.source ?? "manual",
     },
@@ -47,7 +51,7 @@ export async function createExpense(
 
 export async function createManyExpenses(
   userId: string,
-  items: Array<{ date: string; merchant: string; amount: number; category: ExpenseCategoryLabel; source?: string }>,
+  items: Array<{ date: string; merchant: string; amount: number; category: ExpenseCategoryLabel; source?: string; currency?: string; exchangeRate?: number }>,
 ): Promise<ExpenseRecord[]> {
   const created = await prisma.$transaction(
     items.map((item) =>
@@ -58,6 +62,8 @@ export async function createManyExpenses(
           merchant: item.merchant,
           amount: item.amount,
           category: categoryToDb[item.category],
+          currency: item.currency ?? "INR",
+          exchangeRate: item.exchangeRate ?? 1.0,
           source: item.source ?? "csv",
         },
       }),
@@ -77,7 +83,7 @@ export async function createManyExpenses(
 export async function updateExpense(
   userId: string,
   expenseId: string,
-  input: { date: string; merchant: string; amount: number; category: ExpenseCategoryLabel; notes?: string },
+  input: { date: string; merchant: string; amount: number; category: ExpenseCategoryLabel; notes?: string; currency?: string; exchangeRate?: number },
 ): Promise<ExpenseRecord> {
   const expense = await prisma.expense.update({
     where: { id: expenseId, userId },
@@ -86,6 +92,8 @@ export async function updateExpense(
       merchant: input.merchant,
       amount: input.amount,
       category: categoryToDb[input.category],
+      currency: input.currency,
+      exchangeRate: input.exchangeRate,
       notes: input.notes || null,
     },
   });
