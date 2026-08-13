@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { BrainCircuit, Download, FileUp, Loader2, Pencil, Plus, Search, Sparkles, Trash2, Upload, X } from "lucide-react";
+import { CategoryProgressBar, type CategoryBudgetLimit } from "@/components/category-progress-bar";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +25,7 @@ const colors = ["#d95788", "#f08bab", "#c95d87", "#f7b2c8", "#b9688f", "#e899b3"
 type ExpenseFormInput = z.input<typeof expenseSchema>;
 type ExpenseForm = z.output<typeof expenseSchema>;
 
-export function MoneyAnalyzer({ initialExpenses }: { initialExpenses: ExpenseRecord[] }) {
+export function MoneyAnalyzer({ initialExpenses, categoryBudgets }: { initialExpenses: ExpenseRecord[], categoryBudgets?: CategoryBudgetLimit[] }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const [expenses, setExpenses] = useState(initialExpenses);
@@ -99,6 +100,17 @@ export function MoneyAnalyzer({ initialExpenses }: { initialExpenses: ExpenseRec
             <Signal text={analytics.highestDay ? `${analytics.highestDay.day} was your highest spending day at ${formatCurrency(analytics.highestDay.value)}.` : "Add a few expenses to find your highest spending day."} />
             <Signal text={unusual ? `${unusual.merchant} is your largest single expense at ${formatCurrency(unusual.amount)}.` : "Your unusual spending signal will appear here."} />
             <Signal text={`${analytics.foodPercentage}% of tracked spending went to food.`} />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-5 grid gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Budget Limits</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CategoryProgressBar budgets={categoryBudgets || []} expenses={expenses} />
           </CardContent>
         </Card>
       </div>

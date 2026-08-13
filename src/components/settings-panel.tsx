@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Loader2, Moon, Save, ShieldCheck, Sun, UserRound } from "lucide-react";
 import { toast } from "sonner";
@@ -22,8 +22,13 @@ type Settings = {
 
 export function SettingsPanel({ initial, demo }: { initial: Settings; demo: boolean }) {
   const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [form, setForm] = useState({ ...initial, cuisines: initial.favoriteCuisines.join(", ") });
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function save() {
     setPending(true);
@@ -58,10 +63,10 @@ export function SettingsPanel({ initial, demo }: { initial: Settings; demo: bool
             <Field label="Favorite cuisines"><Input placeholder="Indian, Asian, Mediterranean" value={form.cuisines} onChange={(event) => setForm({ ...form, cuisines: event.target.value })} /></Field>
             <div className="flex items-center justify-between rounded-2xl border border-pink-300 bg-pink-100 p-3 dark:border-pink-800 dark:bg-pink-950 sm:col-span-2">
               <div className="flex items-center gap-3">
-                {resolvedTheme === "dark" ? <Moon className="h-5 w-5 text-primary" /> : <Sun className="h-5 w-5 text-primary" />}
+                {mounted ? (resolvedTheme === "dark" ? <Moon className="h-5 w-5 text-primary" /> : <Sun className="h-5 w-5 text-primary" />) : <div className="h-5 w-5" />}
                 <div><p className="text-sm font-medium">Coquette night mode</p><p className="text-xs text-muted-foreground">Switch between baby pink and a deep berry evening palette.</p></div>
               </div>
-              <button type="button" aria-label="Toggle dark mode" className={`relative h-7 w-12 rounded-full transition ${resolvedTheme === "dark" ? "bg-primary" : "bg-pink-300"}`} onClick={() => { const darkMode = resolvedTheme !== "dark"; setTheme(darkMode ? "dark" : "light"); setForm({ ...form, darkMode }); }}><span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${resolvedTheme === "dark" ? "left-6" : "left-1"}`} /></button>
+              <button type="button" aria-label="Toggle dark mode" className={`relative h-7 w-12 rounded-full transition ${mounted && resolvedTheme === "dark" ? "bg-primary" : "bg-pink-300"}`} onClick={() => { const darkMode = resolvedTheme !== "dark"; setTheme(darkMode ? "dark" : "light"); setForm({ ...form, darkMode }); }}><span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${mounted && resolvedTheme === "dark" ? "left-6" : "left-1"}`} /></button>
             </div>
           </CardContent>
         </Card>
