@@ -201,6 +201,7 @@ export type UserSettingsRecord = {
   dietaryPreference: string;
   favoriteCuisines: string[];
   darkMode: boolean;
+  weeklyEmailsEnabled: boolean;
 };
 
 const defaultSettings: UserSettingsRecord = {
@@ -210,6 +211,7 @@ const defaultSettings: UserSettingsRecord = {
   dietaryPreference: "flexible",
   favoriteCuisines: ["Indian", "Asian", "Mediterranean"],
   darkMode: false,
+  weeklyEmailsEnabled: false,
 };
 
 export async function getSettings(userId: string): Promise<UserSettingsRecord> {
@@ -222,6 +224,7 @@ export async function getSettings(userId: string): Promise<UserSettingsRecord> {
     dietaryPreference: settings.dietaryPreference,
     favoriteCuisines: settings.favoriteCuisines,
     darkMode: settings.darkMode,
+    weeklyEmailsEnabled: settings.weeklyEmailsEnabled,
   };
 }
 
@@ -239,6 +242,7 @@ export async function upsertSettings(
       dietaryPreference: input.dietaryPreference,
       favoriteCuisines: input.favoriteCuisines,
       darkMode: input.darkMode,
+      weeklyEmailsEnabled: input.weeklyEmailsEnabled,
       onboardingDone: true,
     },
     update: {
@@ -247,6 +251,7 @@ export async function upsertSettings(
       dietaryPreference: input.dietaryPreference,
       favoriteCuisines: input.favoriteCuisines,
       darkMode: input.darkMode,
+      weeklyEmailsEnabled: input.weeklyEmailsEnabled,
     },
   });
   return input;

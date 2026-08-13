@@ -100,15 +100,16 @@ model AdultingScore {
 }
 
 model UserSettings {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  monthlyBudget   Float    @default(30000)
-  currency        String   @default("INR")
-  dietaryPreference String @default("flexible")
-  favoriteCuisines String[]
-  darkMode        Boolean  @default(false)
-  onboardingDone  Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  monthlyBudget       Float    @default(30000)
+  currency            String   @default("INR")
+  dietaryPreference   String   @default("flexible")
+  favoriteCuisines    String[]
+  darkMode            Boolean  @default(false)
+  onboardingDone      Boolean  @default(false)
+  weeklyEmailsEnabled Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

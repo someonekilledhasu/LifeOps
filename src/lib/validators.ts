@@ -33,6 +33,7 @@ export const settingsSchema = z.object({
   dietaryPreference: z.enum(["flexible", "vegetarian", "non-vegetarian", "vegan"]),
   favoriteCuisines: z.array(z.string().trim().min(1).max(40)).max(8),
   darkMode: z.boolean(),
+  weeklyEmailsEnabled: z.boolean().default(false),
 });
 
 export const coachInputSchema = z.object({
